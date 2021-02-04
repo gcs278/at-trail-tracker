@@ -1,0 +1,23 @@
+{
+  "name": "attrail-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@turf/distance": "^6.3.0",
+    "@turf/helpers": "^6.3.0",
+    "@turf/length": "^6.3.0",
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "mongoose": "^5.11.14",
+    "turf": "^3.0.14"
+  }
+}
