@@ -9,5 +9,6 @@ db.url = dbConfig.url;
 db.location = require("./locations.model.js")(mongoose);
 db.atGeojson = require("./atgeojson.model.js")(mongoose);
 db.atGeojsonReduced = require("./atgeojsonreduced.model.js")(mongoose);
+db.user = require("./user.model.js")(mongoose);
 
 module.exports = db;

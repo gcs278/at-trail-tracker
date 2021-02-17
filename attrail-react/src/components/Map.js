@@ -1,9 +1,9 @@
 import logo from './logo.svg';
-import './App.css';
+import '../css/App.css';
 // import mapboxgl from 'mapbox-gl';
 // import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
-import LocationDataService from "./services/location.service";
+import LocationDataService from "../services/location.service";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import ReactMapGL, {Marker, Source, Layer} from 'react-map-gl';
 import Pin from './pin';
@@ -29,7 +29,7 @@ const myTrackStyle = {
   }
 };
 
-class App extends Component {
+class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -206,4 +206,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Map;
