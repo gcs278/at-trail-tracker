@@ -26,8 +26,16 @@ export default function Login() {
         setToken(response.data.token)
       }
       ).catch(e => {
-        setResult("Failed Login!\n" + e)
         console.log(e);
+        if ( !e.response ) {
+          setResult("Couldn't connect to the server");
+        }
+        else if ( e.response.status == 401 ){
+          setResult("Incorrect User/Pass!")
+        }
+        else {
+          setResult("There was a problem with logging in:\n" + e)
+        }
       });
   }
 

@@ -14,14 +14,14 @@ module.exports = app => {
     router.get("/latest", locations.findLatest);
   
     // Retrieve all published Tutorials
-    router.get("/test", locations.test);
-    router.get("/resetLocations", locations.resetLocations);
+    router.get("/test", VerifyToken, locations.test);
+    router.get("/resetLocations", VerifyToken, locations.resetLocations);
   
     // Get total distance hiked
     router.get("/stats", locations.stats);
 
-    router.post("/uploadAT", locations.uploadAT);
-    router.post("/uploadATReduced", locations.uploadATReduced);
+    router.post("/uploadAT", VerifyToken, locations.uploadAT);
+    router.post("/uploadATReduced", VerifyToken, locations.uploadATReduced);
 
     router.get("/mytrack", locations.getMyTrack);
 

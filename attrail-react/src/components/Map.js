@@ -8,8 +8,21 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import ReactMapGL, {Marker, Source, Layer} from 'react-map-gl';
 import Pin from './pin';
 import { FlyToInterpolator } from "react-map-gl";
+import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
+import circle from '@turf/circle';
+import turf from 'turf'
+
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+
+// import mapboxgl from 'mapbox-gl/dist/mapbox-gl';
+// import MapboxWorker from 'mapbox-gl/dist/mapbox-gl-csp-worker';
+// mapboxgl.workerClass = MapboxWorker;
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ2NzMjc4IiwiYSI6ImNra2hzZWticDA0YzIycHFuazI4MmNyOTMifQ.H-DA4nbJSSFZZVmVAuuiWg';
+
+// Fix for broken mapbox
+// mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 const layerStyle = {
   id: 'atTrail',
@@ -27,6 +40,69 @@ const myTrackStyle = {
     'line-color': 'red',
     'line-width': 1
   }
+};
+
+const clusterLayer = {
+  id: 'clusters',
+  type: 'circle',
+  // source: 'earthquakes',
+  paint: {
+    // 'circle-color': '#f1f075',
+    'circle-radius': {
+      'base': 10,
+      'stops': [
+      [12, 10],
+      [22, 10]
+      ]
+    },
+    'circle-stroke-color': 'blue',
+    'circle-stroke-width': 1,
+    'circle-opacity': 0.5
+  }
+};
+
+const circleFillStyle = {
+  "id": "circle-fill",
+  "type": "fill",
+  "source": {
+      "type": "geojson",
+      "data": circle
+  },
+  "paint": {
+      "fill-color": "blue",
+      "fill-opacity": 0.5
+  }
+}
+
+const circleStyle = {
+  "id": "circle-outline",
+  "type": "line",
+  "source": {
+      "type": "geojson",
+      "data": circle
+  },
+  "paint": {
+      "line-color": "blue",
+      "line-opacity": 0.5,
+      "line-width": {
+        "type": "exponential",
+        "base": 2,
+        "stops": [
+            [0, 1 * Math.pow(2, (0 - 4.5))],
+            [24, 1 * Math.pow(2, (24 - 4.5))]
+        ]
+      },
+      "line-offset": 5
+  },
+  "layout": {
+
+  }
+};
+
+var circleRadius = 25;
+var circleOptions = {
+  steps: 80,
+  units: 'miles'
 };
 
 class Map extends Component {
@@ -51,7 +127,8 @@ class Map extends Component {
       stats: {
         totalDistance: null,
         todayDistance: null
-      }
+      },
+      circleMarker: null
     };
     this.getLatestLocation = this.getLatestLocation.bind(this);
   }
@@ -59,13 +136,18 @@ class Map extends Component {
   getLatestLocation() {
     LocationDataService.getLatest()
       .then(response => {
+        var latitude = response.data.geometry.coordinates[0];
+        var longitude = response.data.geometry.coordinates[1];
+        var center = turf.point([latitude, longitude]);
         this.setState({
           marker: {
-            longitude: response.data.geometry.coordinates[0],
-            latitude: response.data.geometry.coordinates[1]
-          }
+            longitude: longitude,
+            latitude: latitude
+          },
+          circleMarker: circle(center, circleRadius, circleOptions)
         });
         console.log("My Location:")
+        console.log(this.state.myLocation)
         console.log(this.state.marker.longitude);
         console.log(this.state.marker.latitude);
 
@@ -114,6 +196,7 @@ class Map extends Component {
   }
 
   componentDidMount() {
+    document.title = "Thru Hike Tracker"
     this.getLatestLocation();
     this.getAllLocations();
     this.getTrailOverlay();
@@ -175,6 +258,13 @@ class Map extends Component {
           <Source id="mytrack" type="geojson" data={this.state.myTrack}>
             <Layer {...myTrackStyle} />
           </Source>
+          <Source
+            type="geojson"
+            data={this.state.circleMarker}
+          >
+            {/* <Layer {...circleStyle} /> */}
+            <Layer {...circleFillStyle} />
+          </Source>
           <div id="overlay" className="container">
             <h3>Grant AT Thru Hike 2021</h3>
             <hr></hr>
@@ -194,6 +284,7 @@ class Map extends Component {
                 <div className='stat'>Days Hiking:</div>
                 <div className='value'>{this.state.stats.daysHiking}</div>
             </div>
+            <div>{this.state.viewport.zoom}</div>
           </div>
         </ReactMapGL>
         </>

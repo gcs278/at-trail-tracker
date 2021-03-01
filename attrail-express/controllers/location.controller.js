@@ -27,7 +27,7 @@ exports.create = (req, res) => {
     Location.insertMany(req.body.locations)
     .then(result => {
         console.log(result)
-        res.send("SUCCESS");
+        res.send({result:"ok"});
     })
     .catch(error => {
         console.error(error)
@@ -82,9 +82,10 @@ exports.findLatest = async (req, res) => {
         res.send(lastLocation);
     }
     else {
-        res.status(500).send("An error occurred while fetching the last location");
+        res.status(500).send("No locations in the database");
     }
 };
+
 
 function calculateDistance(locations) {
     var lineString = []
@@ -116,7 +117,29 @@ async function getMyLastLocation() {
     const query = Location.find(condition).sort({"properties.timestamp": -1}).limit(1)
     const data = await query.exec()
     console.log("Last Location: " + data[0])
-    return data[0]
+
+    return await obfuscateLocation(data[0])
+}
+
+async function obfuscateLocation(location) {
+    if ( !location ) {
+        return location;
+    }
+
+    if ( Array.isArray(location) ) {
+        newLocations=[]
+        location.forEach( function(item) {
+            item.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(1)
+            item.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(1)
+            newLocations.push(item)
+        });
+        return newLocations
+    }
+    else {
+        location.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(1)
+        location.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(1)
+        return location
+    }
 }
 
 async function getAllLocations() {
@@ -212,9 +235,14 @@ exports.getMyTrack = async (req, res) => {
         return
     }
     currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
-    var geojson = await getPartialATGeoJson(currentATLocation.geometry.coordinates)
-    // console.log("AT GEOJSON: " + JSON.stringify(geojson))
-    res.send(geojson)
+    if ( currentATLocation ) {
+        var geojson = await getPartialATGeoJson(currentATLocation.geometry.coordinates)
+        // console.log("AT GEOJSON: " + JSON.stringify(geojson))
+        res.send(geojson)
+    }
+    else {
+        res.send({})
+    }
 }
 
 // Update a Tutorial by the id in the request
@@ -451,7 +479,7 @@ exports.test = async (req, res) => {
             ]
         };
 
-        const postres = await axios.post('http://localhost:8080/api/', data);
+        const postres = await axios.post('http://localhost:8080/api?token='+req.query.token, data);
         // console.log(postres)
     });
     res.send("Created:<br>" + JSON.stringify(testCoordinates, null, 2));
