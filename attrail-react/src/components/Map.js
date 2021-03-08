@@ -228,65 +228,77 @@ class Map extends Component {
   render() {
     return (
       <>
-        <ReactMapGL
-          {...this.state.viewport}
-          width="100vw"
-          height="100vh"
-          mapStyle='mapbox://styles/mapbox/streets-v11'
-          onViewportChange={viewport => this.setState({viewport})}
-          mapboxApiAccessToken={MAPBOX_TOKEN}
-          scrollZoom={{smooth: false}}
-          // ayncRender={true}
-          // transitionDuration={1000}
-          // transitionInterpolator={new FlyToInterpolator()}
-        >
-          <Marker
-            longitude={this.state.marker.longitude}
-            latitude={this.state.marker.latitude}
-            offsetTop={-20}
-            offsetLeft={-10}
-            // draggable
-            // onDragStart={onMarkerDragStart}
-            // onDrag={onMarkerDrag}
-            // onDragEnd={onMarkerDragEnd}
-          >
-            <Pin size={20} />
-          </Marker>
-          <Source id="atTrail" type="geojson" data={this.state.atGeojson}>
-            <Layer {...layerStyle} />
-          </Source>
-          <Source id="mytrack" type="geojson" data={this.state.myTrack}>
-            <Layer {...myTrackStyle} />
-          </Source>
-          <Source
-            type="geojson"
-            data={this.state.circleMarker}
-          >
-            {/* <Layer {...circleStyle} /> */}
-            <Layer {...circleFillStyle} />
-          </Source>
-          <div id="overlay" className="container">
-            <h3>Grant AT Thru Hike 2021</h3>
-            <hr></hr>
-            <div className="row">
-                <div className='stat'>Miles Hiked:</div>
-                <div className='value'>{this.state.stats.totalDistance} mi</div>
-            </div>
-            <div className="row">
+      <div className="container-fluid">
+        <div className="row">
+            <ReactMapGL
+              {...this.state.viewport}
+              width="100vw"
+              height="100vh"
+              mapStyle='mapbox://styles/mapbox/streets-v11'
+              onViewportChange={viewport => this.setState({viewport})}
+              mapboxApiAccessToken={MAPBOX_TOKEN}
+              scrollZoom={{smooth: false}}
+              // ayncRender={true}
+              // transitionDuration={1000}
+              // transitionInterpolator={new FlyToInterpolator()}
+            >
+            <Marker
+              longitude={this.state.marker.longitude}
+              latitude={this.state.marker.latitude}
+              offsetTop={-20}
+              offsetLeft={-10}
+              // draggable
+              // onDragStart={onMarkerDragStart}
+              // onDrag={onMarkerDrag}
+              // onDragEnd={onMarkerDragEnd}
+              >
+                <Pin size={20} />
+            </Marker>
+            <Source id="atTrail" type="geojson" data={this.state.atGeojson}>
+              <Layer {...layerStyle} />
+            </Source>
+            <Source id="mytrack" type="geojson" data={this.state.myTrack}>
+              <Layer {...myTrackStyle} />
+            </Source>
+            <Source
+              type="geojson"
+              data={this.state.circleMarker}
+            >
+              {/* <Layer {...circleStyle} /> */}
+              <Layer {...circleFillStyle} />
+            </Source>
+            <div id="overlay" className="container">
+              <h3>Grant AT Thru Hike 2021</h3>
+              <hr></hr>
+              <div className="row">
+                  <div className='stat'>Miles Hiked:</div>
+                  <div className='value'>{this.state.stats.totalDistance} mi</div>
+              </div>
+              <div className="row">
                 <div className='stat'>Miles Hiked Today:</div>
                 <div className='value'>{this.state.stats.todayDistance} mi</div>
-            </div>
-            <div className="row">
+              </div>
+              <div className="row">
                 <div className='stat'>Daily Average:</div>
                 <div className='value'>{this.state.stats.dailyAverage} mi</div>
-            </div>
-            <div className="row">
+              </div>
+              <div className="row">
                 <div className='stat'>Days Hiking:</div>
                 <div className='value'>{this.state.stats.daysHiking}</div>
+              </div>
+              <div>{this.state.viewport.zoom}</div>
             </div>
-            <div>{this.state.viewport.zoom}</div>
-          </div>
-        </ReactMapGL>
+          </ReactMapGL>
+        </div>
+      </div>
+      <div className="col-sm-3 control-panel">
+        <div className="row">
+
+        </div>
+      </div>
+      <div className="col-sm-9">
+
+      </div>
         </>
         // {/* <Marker
         //   coordinates={[-0.2416815, 51.5285582]}

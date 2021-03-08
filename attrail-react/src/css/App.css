@@ -73,3 +73,9 @@
   display: inline-block;
   text-align: right;
 }
+.control-panel {
+  background-color: #f0f0f0;
+  /* width: 23%;
+  flex: 0 0 23%;
+  max-width: 23%; */
+}
