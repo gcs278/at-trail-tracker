@@ -9,21 +9,24 @@ module.exports = app => {
     router.post("/", VerifyToken, locations.create);
   
     // Retrieve all Tutorials
-    router.get("/", locations.findAll);
+    router.get("/", VerifyToken, locations.findAll);
 
-    router.get("/latest", locations.findLatest);
+    router.get("/latest", VerifyToken, locations.findLatest);
   
     // Retrieve all published Tutorials
     router.get("/test", VerifyToken, locations.test);
-    router.get("/resetLocations", VerifyToken, locations.resetLocations);
+    router.delete("/", VerifyToken, locations.resetLocations);
   
     // Get total distance hiked
-    router.get("/stats", locations.stats);
+    router.get("/stats", VerifyToken, locations.stats);
 
     router.post("/uploadAT", VerifyToken, locations.uploadAT);
     router.post("/uploadATReduced", VerifyToken, locations.uploadATReduced);
 
-    router.get("/mytrack", locations.getMyTrack);
+    router.get("/mytrack", VerifyToken, locations.getMyTrack);
 
-    app.use('/api/', router);
+    router.post("/start-date", VerifyToken, locations.updateStartDate);
+    router.post("/finish-date", VerifyToken, locations.updateFinishDate);
+
+    app.use('/api/', VerifyToken, router);
   };

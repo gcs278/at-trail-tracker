@@ -1,11 +1,14 @@
 import axios from "axios";
 
-export default axios.create({
-  baseURL: getUrl() + ":8080/api",
-  headers: {
-    "Content-type": "application/json"
-  }
-});
+export default function http() {
+  return axios.create({
+    baseURL: getUrl() + ":8080/api",
+    headers: {
+      "Content-type": "application/json",
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+  })
+};
 
 export var auth = axios.create({
   baseURL: getUrl() + ":8080/auth",

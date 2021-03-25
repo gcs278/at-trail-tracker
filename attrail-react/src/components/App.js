@@ -2,12 +2,12 @@ import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 import Map from './Map';
 import Login from './Login';
 import Register from './Register';
+import Admin from './Admin';
 
 export default function BasicExample() {
   return (
@@ -36,6 +36,9 @@ export default function BasicExample() {
           </Route>
           <Route exact path="/register">
             <Register />
+          </Route>
+          <Route exact path="/admin">
+            <Admin />
           </Route>
         </Switch>
       </div>

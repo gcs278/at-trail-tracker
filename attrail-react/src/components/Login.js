@@ -30,7 +30,7 @@ export default function Login() {
         if ( !e.response ) {
           setResult("Couldn't connect to the server");
         }
-        else if ( e.response.status == 401 ){
+        else if ( e.response.status === 401 ){
           setResult("Incorrect User/Pass!")
         }
         else {

@@ -5,11 +5,15 @@ function verifyToken(req, res, next) {
 
   // Unfortunately, the overland app can't send tokens via header, it gotta be through query variables
   // check header or url parameters or post parameters for token
-  var token = req.query.token
-  console.log(token)
-  if ( ! req.query.token )
+  var token
+  if ( req.query.token )
+    token = req.query.token
+  else if ( req.headers['authorization'] )
+    token = req.headers['authorization'].split(' ')[1]
+  else
     return res.status(403).send({ auth: false, message: 'No token provided.' });
   // var token = req.headers['authorization'].split(' ');
+  console.log(token)
 
   // verifies secret and checks exp
   jwt.verify(token, process.env.SECRET, function(err, decoded) {      

@@ -10,8 +10,10 @@ var VerifyToken = require('./VerifyToken');
 const Location = db.location;
 const atGeojson = db.atGeojson;
 const atGeojsonReduced = db.atGeojsonReduced;
+const hikeDetails = db.hikeDetails;
 const AT_MILES = 2189
 const maxDistanceOffTrail = 1609 // meters == 1 mile
+const GEOJSON_CALIBRATE = 1.0382266 // Calibration value to make geojson distanceNobo more accurate
   
 // const stateDate = new Date(2021, 03, 28) 
 // const startDate = "2021-03-28"
@@ -100,15 +102,39 @@ function calculateDistance(locations) {
     return totalDistance
 }
 
-function getDaysHiking() {
-    var start = moment(startDate);
+async function getHikeDetails() {
+    const query = hikeDetails.find({}).limit(1)
+    const data = await query.exec()
+    if ( data.length == 0) {
+        console.log("ERROR: No hike details")
+        return null;
+    }
+
+    return data[0]
+}
+
+async function getDaysHiking() {
+    var hikeDetails = await getHikeDetails()
+    if ( ! 'startDate' in hikeDetails ) {
+        console.log("ERROR: No start date defined")
+        return 0;
+    }
+
+    // If end date is specified then use that since we have finished the hike
     var end = moment();
+    if ( 'finishDate' in hikeDetails && hikeDetails.finishDate !== "" ) {
+        end = moment(hikeDetails.finishDate)
+    }
+
+
+    var start = moment(hikeDetails.startDate);
+
     var daysHiking = end.diff(start, "days")
     return daysHiking
 }
 
-function getDailyAverage(totalDistance) {
-    var daysHiking = getDaysHiking()
+async function getDailyAverage(totalDistance) {
+    var daysHiking = await getDaysHiking()
     return totalDistance / daysHiking
 }
 
@@ -129,22 +155,23 @@ async function obfuscateLocation(location) {
     if ( Array.isArray(location) ) {
         newLocations=[]
         location.forEach( function(item) {
-            item.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(1)
-            item.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(1)
+            item.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(5)
+            item.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(5)
             newLocations.push(item)
         });
         return newLocations
     }
     else {
-        location.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(1)
-        location.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(1)
+        location.geometry.coordinates[0] = +location.geometry.coordinates[0].toFixed(5)
+        location.geometry.coordinates[1] = +location.geometry.coordinates[1].toFixed(5)
         return location
     }
 }
 
 async function getAllLocations() {
     // Get Distance NOBO
-    const query = Location.find({"properties.timestamp": -1})
+    var condition = { "properties.timestamp": { $exists: true }}
+    const query = Location.find(condition).sort({"properties.timestamp": -1})
     const data = await query.exec()
     return data
 }
@@ -248,7 +275,6 @@ exports.getMyTrack = async (req, res) => {
 // Update a Tutorial by the id in the request
 exports.stats = async (req, res) => {
     const title = req.query.title;
-    var condition = { "properties.timestamp": { $exists: true }}
 
     console.log("Gathering stats...")
     var totalDistance = null
@@ -260,47 +286,55 @@ exports.stats = async (req, res) => {
     var estimatedDaysRemaining = null
     var estimateCompletionDate = null
     var lastLocationTime = null
+    var startDate = null
+    var started = false
+
+    var hikeDetails = await getHikeDetails()
+    startDate = hikeDetails.startDate;
+    finishDate = hikeDetails.finishDate;
 
     var allLocations = await getAllLocations()
-    if ( ! allLocations ) {
-        res.status(500).send("An error occurred while fetching my locations");
+    if ( allLocations ) {
         var currentLocation = await getMyLastLocation()
-        if ( ! currentLocation ) {
-            res.status(500).send("An error occurred while fetching the last location");
+        if ( currentLocation ) {
+            started = true
+            currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
+            console.log("Closest point on the AT: " + currentATLocation)
+            lastLocationTime = currentLocation.properties.timestamp
+            isOnTheAT = await getIsOnTheAT()
+            if ( currentATLocation ) {
+                totalDistance = currentATLocation.properties.distanceNobo * GEOJSON_CALIBRATE
+                dailyAverage = await getDailyAverage(totalDistance)
+                totalDistance = totalDistance.toFixed(2)
+                dailyAverage = dailyAverage.toFixed(2)
+
+                // Distance from the AT
+                var from = turf.point([currentATLocation.geometry.coordinates[0], currentATLocation.geometry.coordinates[1]])
+                var to = turf.point([currentLocation.geometry.coordinates[0], currentLocation.geometry.coordinates[1]])
+                var options = {units: 'miles'};
+                var distanceFromTheAT = distance(from, to, options);
+                distanceFromTheAT = distanceFromTheAT.toFixed(2)
+
+                percentDone = ( totalDistance /  AT_MILES ) * 100
+                percentDone = percentDone.toFixed(2)
+
+                estimatedDaysRemaining = ( AT_MILES - totalDistance ) / dailyAverage
+                estimatedDaysRemaining = estimatedDaysRemaining.toFixed(2)
+                estimateCompletionDate = moment().add(estimatedDaysRemaining, 'days');
+            }
+
+            daysHiking = await getDaysHiking()
+            yesterdayLocation = await getMyLastLocationYesterday()
+            if ( yesterdayLocation && currentLocation ) {
+                yesterdayATLocation = await getClosestPointOnAT(yesterdayLocation.geometry.coordinates)
+                todayDistance = totalDistance - yesterdayATLocation.properties.distanceNobo 
+                todayDistance = todayDistance.toFixed(2)
+            } else {
+                todayDistance = 0
+            }
+
+            console.log("Total Distance: " + totalDistance)
         }
-        currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
-        lastLocationTime = currentLocation.properties.timestamp
-        isOnTheAT = await getIsOnTheAT()
-        if ( currentATLocation ) {
-            totalDistance = currentATLocation.properties.distanceNobo
-            dailyAverage = getDailyAverage(totalDistance)
-            totalDistance = totalDistance.toFixed(2)
-            dailyAverage = dailyAverage.toFixed(2)
-
-            // Distance from the AT
-            var from = turf.point([currentATLocation.geometry.coordinates[0], currentATLocation.geometry.coordinates[1]])
-            var to = turf.point([currentLocation.geometry.coordinates[0], currentLocation.geometry.coordinates[1]])
-            var options = {units: 'miles'};
-            var distanceFromTheAT = distance(from, to, options);
-            distanceFromTheAT = distanceFromTheAT.toFixed(2)
-
-            percentDone = ( totalDistance /  AT_MILES ) * 100
-            percentDone = percentDone.toFixed(2)
-
-            estimatedDaysRemaining = ( AT_MILES - totalDistance ) / dailyAverage
-            estimatedDaysRemaining = estimatedDaysRemaining.toFixed(2)
-            estimateCompletionDate = moment().add(estimatedDaysRemaining, 'days');
-        }
-
-        daysHiking = getDaysHiking()
-        yesterdayLocation = await getMyLastLocationYesterday()
-        if ( yesterdayLocation && currentLocation ) {
-            yesterdayATLocation = await getClosestPointOnAT(yesterdayLocation.geometry.coordinates)
-            todayDistance = totalDistance - yesterdayATLocation.properties.distanceNobo 
-            todayDistance = todayDistance.toFixed(2)
-        }
-
-        console.log("Total Distance: " + totalDistance)
     }
 
     res.send({
@@ -313,7 +347,10 @@ exports.stats = async (req, res) => {
         percentDone: percentDone,
         daysHiking: daysHiking,
         estimatedDaysRemaining: estimatedDaysRemaining,
-        estimateCompletionDate: estimateCompletionDate
+        estimateCompletionDate: estimateCompletionDate,
+        startDate: startDate,
+        finishDate: finishDate,
+        started: started
     });
 
 };
@@ -424,6 +461,40 @@ exports.resetLocations = async (req, res) => {
     const query = Location.deleteMany({})
     const results = await query.exec()
     res.send("Reset Location Data");
+}
+
+exports.updateStartDate = (req, res) => {
+    console.log(req.body)
+    if ( Object.keys(req.body).length === 0 ) {
+        res.send("ERROR: No data provided");
+        return
+    }
+    hikeDetails.findOneAndUpdate({},{startDate: req.body.startDate}, {useFindAndModify: false, upsert: true})
+    .then(result => {
+        console.log(result)
+        res.send({result:"ok"});
+    })
+    .catch(error => {
+        console.error(error)
+        res.send("ERROR");
+    })
+}
+
+exports.updateFinishDate = (req, res) => {
+    console.log(req.body)
+    if ( Object.keys(req.body).length === 0 ) {
+        res.send("ERROR: No data provided");
+        return
+    }
+    hikeDetails.findOneAndUpdate({},{finishDate: req.body.finishDate}, {useFindAndModify: false, upsert: true})
+    .then(result => {
+        console.log(result)
+        res.send({result:"ok"});
+    })
+    .catch(error => {
+        console.error(error)
+        res.send("ERROR");
+    })
 }
 
 // Find all published Tutorials
