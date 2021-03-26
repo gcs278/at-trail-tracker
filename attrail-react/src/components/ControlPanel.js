@@ -40,9 +40,6 @@ class ControlPanel extends Component {
           this.setState({showModal: true });
       })
       .catch(e => {
-        if ( e.response.status === 401 ) {
-
-        }
         console.log(e);
       });
     }
@@ -78,7 +75,9 @@ class ControlPanel extends Component {
             </div>
           </div>
           <div className="row">
-            <img className="profile" src="./DSC_0096.png" alt="Profile"></img>
+            <div className="col-12">
+              <img className="profile" src="./DSC_0096.png" alt="Profile"></img>
+            </div>
           </div>
           <div className="row">
             <div className="col-12 title">

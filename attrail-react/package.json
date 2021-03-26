@@ -25,6 +25,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
+    "react-spinners": "^0.10.6",
     "react-token-auth": "^1.1.8",
     "turf": "^3.0.14",
     "web-vitals": "^0.2.4",

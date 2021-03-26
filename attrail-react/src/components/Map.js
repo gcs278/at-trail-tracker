@@ -11,6 +11,8 @@ import circle from '@turf/circle';
 import turf from 'turf'
 import ControlPanel from './ControlPanel'
 import LoginPanel from './LoginPanel'
+import ClipLoader from "react-spinners/ClipLoader";
+import { css } from "@emotion/core";
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
@@ -78,6 +80,9 @@ class Map extends Component {
         latitude: 1,
         longitude: 1,
       },
+      loadingTrack: true,
+      loadingMyTrack: true,
+      loadingLatestLocation: true,
       viewport: viewport,
       atGeojson: null,
       myTrack: null,
@@ -110,7 +115,7 @@ class Map extends Component {
         // console.log(this.state.myLocation)
         console.log(this.state.marker.longitude);
         console.log(this.state.marker.latitude);
-
+        this.setState({loadingLatestLocation:false});
       })
       .catch(e => {
         console.log(e);
@@ -123,6 +128,7 @@ class Map extends Component {
         this.setState({
           myTrack: response.data
         });
+        this.setState({loadingMyTrack:false});
         // console.log("Got MyTrack:")
         // console.log(this.state.myTrack);
       })
@@ -133,6 +139,7 @@ class Map extends Component {
 
   getTrailOverlay() {
     fetch('./at_full_reduced.geojson').then((res) => {
+        this.setState({loadingTrack:false});
       return res.json();
     }).then((result) => {
       this.setState({
@@ -164,6 +171,9 @@ class Map extends Component {
       <div className="container-fluid">
         <ControlPanel ref={this.controlPanel}></ControlPanel>
         <LoginPanel onLoginSuccess={this.getTrailData}></LoginPanel>
+        <div className="spinner">
+          <ClipLoader loading={this.state.loadingMyTrack || this.state.loadingTrack || this.state.loadingLatestLocation} size={150} />
+        </div>
         <div className="row">
             <ReactMapGL
               {...this.state.viewport}
@@ -178,6 +188,7 @@ class Map extends Component {
               // transitionDuration={1000}
               // transitionInterpolator={new FlyToInterpolator()}
             >
+
             <Marker
               longitude={this.state.marker.latitude}
               latitude={this.state.marker.longitude}
