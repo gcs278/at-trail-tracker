@@ -64,22 +64,25 @@ class Map extends Component {
     super(props);
     var viewport = {
         latitude: 40.5,
-        longitude: -79,
+        longitude: -78,
         zoom: 4.5,
     }
+    var heightMap = "100vh";
     if ( window.innerWidth < 767 ) {
      viewport = {
-        latitude: 33,
-        longitude: -76.5,
-        zoom: 3.75,
+        latitude: 40,
+        longitude: -76,
+        zoom: 3.6,
       }
-    }
+    heightMap = "50vh";
+  }
     
     this.state = {
       marker: {
         latitude: 1,
         longitude: 1,
       },
+      heightMap: heightMap,
       loadingTrack: true,
       loadingMyTrack: true,
       loadingLatestLocation: true,
@@ -178,7 +181,7 @@ class Map extends Component {
             <ReactMapGL
               {...this.state.viewport}
               width="100vw"
-              height="100vh"
+              height={this.state.heightMap}
               mapStyle='mapbox://styles/mapbox/streets-v11'
               onViewportChange={viewport => this.setState({viewport})}
               mapboxApiAccessToken={MAPBOX_TOKEN}

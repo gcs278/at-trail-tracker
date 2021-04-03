@@ -25,6 +25,7 @@ class Admin extends Component {
     this.finishHike = this.finishHike.bind(this);
     this.unfinishHike = this.unfinishHike.bind(this);
     this.resetLocations = this.resetLocations.bind(this);
+    this.tryCurrentPosition = this.tryCurrentPosition.bind(this);
   }
 
   revealPosition(position) {
@@ -38,15 +39,27 @@ class Admin extends Component {
 
   handlePermission() {
       this.setState({geoPerm: "unknown"});
-      navigator.permissions.query({name:'geolocation'}).then(result => {
-        this.setState({geoPerm: result.state});
-        if (result.state == 'prompt' || result.state == 'granted' ) {
-          navigator.geolocation.getCurrentPosition(this.revealPosition);
-        }
-        result.onchange = (event) => {
+      if ( navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({name:'geolocation'}).then(result => {
           this.setState({geoPerm: result.state});
-        }
-    });
+          if (result.state === 'prompt' || result.state === 'granted' ) {
+            this.tryCurrentPosition()
+          }
+          result.onchange = (event) => {
+            this.setState({geoPerm: result.state});
+          }
+        });
+      }
+      else if (navigator.geolocation) {
+        this.tryCurrentPosition()
+      }
+  }
+
+  tryCurrentPosition() {
+    navigator.geolocation.getCurrentPosition(this.revealPosition, function(error) {
+      console.log("ERROR: Geolocation failed: " + error.code + " " + error.message)
+      alert("ERROR: Geolocation failed: " + error.code + " " + error.message)
+    }, {timeout:10000});
   }
 
   updateLocation(latitude, longitude, altitude) {
