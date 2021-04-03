@@ -50,7 +50,7 @@ class ControlPanel extends Component {
   }
 
   componentDidMount() {
-    this.getStats();
+    // this.getStats();
   }
 
   logout() {

@@ -195,17 +195,21 @@ async function isAdmin(req) {
 }
 
 async function getClosestPointOnAT(coordinates) {
-    // The maximum meters i can go off trail before we consider me "off" trail and not making progress
-    // Get the latest location object with "isOnAT" trigger data
-    const query = Location.find({triggerData: { isOnAT: true }}).sort({"properties.timestamp": -1}).limit(1)
-    const data = await query.exec()
-    if ( data.length == 0 ) {
-        console.log("Could not get AT location. No Locations have ever been near AT.")
-        return null
+    // If coordinates are not passed, then assume we mean to get my closest point on AT based on my latest location
+    var search_coordinates = coordinates
+    if ( ! search_coordinates ) {
+        // Get the latest location object with "isOnAT" trigger data
+        const query = Location.find({triggerData: { isOnAT: true }}).sort({"properties.timestamp": -1}).limit(1)
+        const data = await query.exec()
+        if ( data.length == 0 ) {
+            console.log("Could not get AT location. No Locations have ever been near AT.")
+            return null
+        }
+        search_coordinates = data[0].geometry.coordinates
     }
 
     // Now Query for nearest AT Point
-    const query2 = atGeojson.find({ "geometry": { $near: { $geometry: { type: "Point", coordinates: data[0].geometry.coordinates}, $maxDistance: maxDistanceOffTrail}}}).limit(1)
+    const query2 = atGeojson.find({ "geometry": { $near: { $geometry: { type: "Point", coordinates: search_coordinates}, $maxDistance: maxDistanceOffTrail}}}).limit(1)
     const data2 = await query2.exec()
 
     // console.log("AT Closest Point: " + data2[0])
@@ -264,13 +268,25 @@ async function getIsOnTheAT() {
 }
 
 async function getMyLastLocationYesterday() {
-    yesterday_end = moment().subtract(1,'days').endOf('day').toDate()
-    yesterday_start = moment().subtract(1,'days').endOf('day').toDate()
+    yesterday_end = moment().utcOffset('-0400').subtract(1,'days').endOf('day').toDate().toUTCString()
+    yesterday_start = moment().utcOffset('-0400').subtract(1,'days').startOf('day').toDate().toUTCString()
 
-    const query = atGeojson.find({ "properties.timestamp": {$gt: yesterday_start, $lt: yesterday_end}}).sort({"properties.timestamp": -1})
+    // First try to get a location from yesterday
+    const query = Location.find({ "properties.timestamp": {$gt: yesterday_start, $lt: yesterday_end}}).sort({"properties.timestamp": -1})
     const data = await query.exec()
     // console.log("Last Location Yesterday: " + data[0])
-    return data[0]
+    // If that fails, then try to get the earliest location today
+    if ( ! data[0] ) {
+        today_start = moment().utcOffset('-0400').startOf('day').toDate().toUTCString()
+        const query2 = Location.find({ "properties.timestamp": {$gt: today_start}}).sort({"properties.timestamp": 1})
+        const data2 = await query2.exec()
+        // console.log("Earliest Location Today: " + data2[0].properties.timestamp)
+        // console.log(data2[0])
+        return data2[0];
+    }
+    else {
+        return data[0];
+    }
 }
 
 exports.getMyTrack = async (req, res) => {
@@ -347,7 +363,7 @@ exports.stats = async (req, res) => {
             yesterdayLocation = await getMyLastLocationYesterday()
             if ( yesterdayLocation && currentLocation ) {
                 yesterdayATLocation = await getClosestPointOnAT(yesterdayLocation.geometry.coordinates)
-                todayDistance = totalDistance - yesterdayATLocation.properties.distanceNobo 
+                todayDistance = totalDistance - (yesterdayATLocation.properties.distanceNobo * GEOJSON_DISTANCE_CALIBRATE)
                 todayDistance = todayDistance.toFixed(2)
             } else {
                 todayDistance = 0

@@ -150,6 +150,16 @@
   }
 }
 
+@media all and (max-width: 480px) {
+  .admin {
+    padding: 10px 20px;
+  }
+
+  .admin form {
+    margin: 0 auto;
+  }
+}
+
 .hidden { display:none; }
 
 .spinner {
