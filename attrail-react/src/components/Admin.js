@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/button';
 import Form from "react-bootstrap/Form";
 import LocationDataService from "../services/location.service";
 import moment from 'moment'
+import {Link} from "react-router-dom";
 
 class Admin extends Component {
   constructor(props) {
@@ -178,6 +179,7 @@ class Admin extends Component {
         <div className="admin">
           <Form onSubmit={this.hangleLocationSubmit}>
             <h1>Admin Panel</h1>
+            <Link to="/login">Login Page</Link>
             <p><strong>Geo Permission Status:</strong> {this.state.geoPerm}</p>
             <Form.Group size="lg" controlId="latitude">
               <Form.Label>Latitude</Form.Label>

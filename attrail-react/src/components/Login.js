@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import "../css/Login.css";
 import AuthDataService from "../services/auth.service";
-
+import {Link} from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -70,6 +70,8 @@ export default function Login() {
           {result}
         </h5>
         <div style={{overflowWrap: "break-word"}}>{token}</div>
+        <br></br>
+        <Link to="/admin">Admin Page</Link>
       </Form>
     </div>
   );
