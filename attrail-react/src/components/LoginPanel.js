@@ -38,7 +38,7 @@ class LoginPanel extends Component {
   handleSubmit(event) {
     event.preventDefault();
     this.setState({result: ""});
-    var email="gcs278@vt.edu"
+    var email="default@thruhiketracker.com"
     AuthDataService.login({
       email: email,
       password: this.state.password

@@ -26,6 +26,7 @@ class Admin extends Component {
     this.unfinishHike = this.unfinishHike.bind(this);
     this.resetLocations = this.resetLocations.bind(this);
     this.tryCurrentPosition = this.tryCurrentPosition.bind(this);
+    this.handleServerError = this.handleServerError.bind(this);
   }
 
   revealPosition(position) {
@@ -87,15 +88,7 @@ class Admin extends Component {
       .then(response => {
         this.setState({locationResult: "Successfully updated your location"});
       }
-      ).catch(e => {
-        console.log(e);
-        if ( !e.response ) {
-          this.setState({locationResult: "Couldn't connect to the server"});
-        }
-        else {
-          this.setState({locationResult: "Unknown problem occurred:\n" + e});
-        }
-      });
+      ).catch(e => { this.handleServerError(e) });
   }
 
   resetLocations() {
@@ -103,15 +96,7 @@ class Admin extends Component {
       .then(response => {
         this.setState({locationResult: "Successfully Deleted All Locations"});
       }
-      ).catch(e => {
-        console.log(e);
-        if ( !e.response ) {
-          this.setState({locationResult: "Couldn't connect to the server"});
-        }
-        else {
-          this.setState({locationResult: "Unknown problem occurred:\n" + e});
-        }
-      });
+      ).catch(e => { this.handleServerError(e) });
   }
 
   hangleLocationSubmit(event) {
@@ -127,15 +112,7 @@ class Admin extends Component {
       .then(response => {
         this.setState({detailsResult: "Successfully updated hike details"});
       }
-      ).catch(e => {
-        console.log(e);
-        if ( !e.response ) {
-          this.setState({detailsResult: "Couldn't connect to the server"});
-        }
-        else {
-          this.setState({detailsResult: "Unknown problem occurred:\n" + e});
-        }
-      });
+      ).catch(e => { this.handleServerError(e) });
   }
 
   finishHike(event) {
@@ -148,15 +125,20 @@ class Admin extends Component {
         // Send the location of katahdin
         this.updateLocation(45.904239, -68.921149, 1600.088989)
       }
-      ).catch(e => {
-        console.log(e);
-        if ( !e.response ) {
-          this.setState({locationResult: "Couldn't connect to the server"});
-        }
-        else {
-          this.setState({locationResult: "Unknown problem occurred:\n" + e});
-        }
-      });
+      ).catch(e => { this.handleServerError(e) });
+  }
+
+  handleServerError(e) {
+    console.log(e);
+    if ( ! e.response ) {
+      this.setState({locationResult: "Couldn't connect to the server"});
+    }
+    else if ( e.response.status === 403 ){
+      this.setState({locationResult: "Forbidden"});
+    }
+    else {
+      this.setState({locationResult: "There was a problem with logging in:\n" + e});
+    }
   }
 
   unfinishHike(event) {
@@ -170,15 +152,7 @@ class Admin extends Component {
         // Send the location of katahdin
           this.setState({locationResult: "Unfinished Hike!"});
       }
-      ).catch(e => {
-        console.log(e);
-        if ( !e.response ) {
-          this.setState({locationResult: "Couldn't connect to the server"});
-        }
-        else {
-          this.setState({locationResult: "Unknown problem occurred:\n" + e});
-        }
-      });
+      ).catch(e => { this.handleServerError(e) });
   }
 
   handleInputChange(event) {
@@ -192,6 +166,10 @@ class Admin extends Component {
   }
 
   componentDidMount() {
+    if ( ! localStorage.getItem('token') ) {
+      console.log("Not logged in...redirecting")
+      window.location = '/login';
+    }
     this.handlePermission()
   }
 

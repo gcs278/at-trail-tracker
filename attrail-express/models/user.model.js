@@ -4,7 +4,8 @@ module.exports = mongoose => {
       mongoose.Schema({  
           name: String,
           email: String,
-          password: String
+          password: String,
+          isAdmin: Boolean
       })
       ,"user"
       );

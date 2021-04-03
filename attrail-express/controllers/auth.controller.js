@@ -42,19 +42,25 @@ exports.login = async (req, res) => {
 } 
 
 exports.register = async (req, res) => {
-    if ( ! req.body.name ) {
-      res.status(500).send("ERROR: You need to provide registration data")
-    }
-    var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-    
-    User.create({
-      name : req.body.name,
-      email : req.body.email,
-      password : hashedPassword
-    },
+  if ( process.env.DEVELOPMENT !== "true" ) {
+    res.status(403).send("Registration services is blocked in production")
+    return
+  }
+  if ( ! req.body.name ) {
+    res.status(500).send("ERROR: You need to provide registration data")
+    return
+  }
+  var hashedPassword = bcrypt.hashSync(req.body.password, 8);
+  
+  User.create({
+    name : req.body.name,
+    email : req.body.email,
+    password : hashedPassword,
+    isAdmin: false
+  },
 
-    function (err, user) {
-      if (err) return res.status(500).send("There was a problem registering the user.")
-      res.status(200).send({ auth: true});
-    }); 
+  function (err, user) {
+    if (err) return res.status(500).send("There was a problem registering the user.")
+    res.status(200).send({ auth: true});
+  }); 
 }

@@ -11,6 +11,7 @@ const Location = db.location;
 const atGeojson = db.atGeojson;
 const atGeojsonReduced = db.atGeojsonReduced;
 const hikeDetails = db.hikeDetails;
+const User = db.user;
 const AT_MILES = 2189
 const maxDistanceOffTrail = 1609 // meters == 1 mile
 const GEOJSON_DISTANCE_CALIBRATE = 1.0382266 // Calibration value to make geojson distanceNobo more accurate
@@ -21,8 +22,11 @@ const GEOJSON_ALTITUDE_CALIBRATE = 1.125831410343423
 const startDate = "2021-01-28"
 
 // Create and Save a new Tutorial
-exports.create = (req, res) => {
-    console.log(req.body)
+exports.create = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     if ( Object.keys(req.body).length === 0 ) {
         res.send("ERROR: No data provided");
         return
@@ -175,6 +179,19 @@ async function getAllLocations() {
     const query = Location.find(condition).sort({"properties.timestamp": -1})
     const data = await query.exec()
     return data
+}
+
+// Check if verified user ID is an admin
+async function isAdmin(req) {
+    const query = User.findOne({_id: req.userId});
+    const user = await query.exec()
+    if ( user ) {
+        return user.isAdmin;
+    }
+    else {
+        console.log("ERROR: Couldn't find user: " + req.userId)
+        return false;
+    }
 }
 
 async function getClosestPointOnAT(coordinates) {
@@ -461,21 +478,37 @@ function uploadGeoJson(res, collection, file) {
     });
 }
 
-exports.uploadAT = (req, res) => {
+exports.uploadAT = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     uploadGeoJson(res, atGeojson,'../at_full.geojson')
 }
 
-exports.uploadATReduced = (req, res) => {
+exports.uploadATReduced = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     uploadGeoJson(res, atGeojsonReduced,'../at_full_reduced.geojson')
 }
 
 exports.resetLocations = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     const query = Location.deleteMany({})
     const results = await query.exec()
     res.send("Reset Location Data");
 }
 
-exports.updateStartDate = (req, res) => {
+exports.updateStartDate = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     console.log(req.body)
     if ( Object.keys(req.body).length === 0 ) {
         res.send("ERROR: No data provided");
@@ -492,8 +525,11 @@ exports.updateStartDate = (req, res) => {
     })
 }
 
-exports.updateFinishDate = (req, res) => {
-    console.log(req.body)
+exports.updateFinishDate = async (req, res) => {
+    if ( ! await isAdmin(req) ) {
+        res.send(403).send("You must be an admin");
+        return
+    }
     if ( Object.keys(req.body).length === 0 ) {
         res.send("ERROR: No data provided");
         return
@@ -508,6 +544,8 @@ exports.updateFinishDate = (req, res) => {
         res.send("ERROR");
     })
 }
+
+
 
 // Find all published Tutorials
 exports.test = async (req, res) => {

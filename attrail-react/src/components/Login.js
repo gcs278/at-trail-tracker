@@ -10,6 +10,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [result, setResult] = useState("");
   const [token, setToken] = useState("");
+  // Automatically Log out
+  localStorage.removeItem('token');
 
   function validateForm() {
     return email.length > 0 && password.length > 0;
@@ -24,6 +26,7 @@ export default function Login() {
       .then(response => {
         setResult("Successful Login!")
         setToken(response.data.token)
+        localStorage.setItem('token', response.data.token);
       }
       ).catch(e => {
         console.log(e);
