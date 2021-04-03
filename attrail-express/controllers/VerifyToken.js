@@ -13,7 +13,7 @@ function verifyToken(req, res, next) {
   else
     return res.status(403).send({ auth: false, message: 'No token provided.' });
   // var token = req.headers['authorization'].split(' ');
-  console.log(token)
+  // console.log(token)
 
   // verifies secret and checks exp
   jwt.verify(token, process.env.SECRET, function(err, decoded) {      

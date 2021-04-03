@@ -19,6 +19,9 @@ module.exports = mongoose => {
             },
             "altitude": {
               "type": "Number"
+            },
+            "totalAltitude": {
+              "type": "Number"
             }
           },
           "index": {

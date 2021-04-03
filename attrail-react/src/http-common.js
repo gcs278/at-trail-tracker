@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default function http() {
   return axios.create({
-    baseURL: getUrl() + ":8080/api",
+    baseURL: getUrl() + ":" + process.env.REACT_APP_EXPRESS_PORT + "/api",
     headers: {
       "Content-type": "application/json",
       'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -11,7 +11,7 @@ export default function http() {
 };
 
 export var auth = axios.create({
-  baseURL: getUrl() + ":8080/auth",
+  baseURL: getUrl() + ":" + process.env.REACT_APP_EXPRESS_PORT + "/auth",
   // headers: {
   //   "Content-type": "application/json"
   // }

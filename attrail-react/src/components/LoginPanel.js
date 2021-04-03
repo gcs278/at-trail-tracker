@@ -22,7 +22,6 @@ class LoginPanel extends Component {
   }
 
   componentDidMount() {
-    console.log("Token: " + localStorage.getItem('token'))
     if ( ! localStorage.getItem('token') ) {
       this.setState({open: true});
     }
@@ -48,7 +47,6 @@ class LoginPanel extends Component {
         this.setState({result: "Successful Login!"});
         localStorage.setItem('token', response.data.token);
         this.setState({open: false});
-        console.log(localStorage.getItem('token'));
 
 
         this.onLoginSuccess()

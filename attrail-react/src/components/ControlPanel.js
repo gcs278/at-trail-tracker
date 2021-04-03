@@ -20,7 +20,8 @@ class ControlPanel extends Component {
         estimateCompletionDate: null,
         daysHiking: null,
         startDate: null,
-        finishDate: null
+        finishDate: null,
+        totalAltitude: null
       }
     }
     this.handleModalClose = this.handleModalClose.bind(this);
@@ -127,6 +128,22 @@ class ControlPanel extends Component {
               </div>
               <div className="col-4">
                 <div className='value'>{this.state.stats.dailyAverage !== null ? this.state.stats.dailyAverage + " mi" : nullChar}</div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-7">
+                <div className='stat'>Elevation Gain/Loss:</div>
+              </div>
+              <div className="col-4">
+                <div className='value'>{this.state.stats.totalAltitude !== null ? Math.round(this.state.stats.totalAltitude) + " ft" : nullChar}</div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-7">
+                <div className='stat'>Mount Everests Climbed:</div>
+              </div>
+              <div className="col-4">
+                <div className='value'>{this.state.stats.totalAltitude !== null ? (this.state.stats.totalAltitude / 29029).toFixed(2) : nullChar}</div>
               </div>
             </div>
             <div className="row">

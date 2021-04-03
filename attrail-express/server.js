@@ -1,11 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const https = require('https');
+const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
 
 var allowedOrigins = ["http://localhost:8081",
-                      'http://thruhiketracker.com'];
+                      'http://thruhiketracker.com',
+                      'https://thruhiketracker.com'];
 
 const db = require("./models");
 db.mongoose
@@ -49,8 +53,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require("./routes/locations.routes.js")(app);
 require("./routes/auth.routes.js")(app);
 
+
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+var PORT = process.env.PORT || 8080;
+
+if ( process.env.DEVELOPMENT == 'true' ) {
+  app.listen(PORT, () => {
+    console.log(`Development Server is running on port ${PORT}.`);
+  });
+}
+else {
+  PORT = 8443;
+  https.createServer({
+    key: fs.readFileSync('/etc/ssl/private/thruhiketracker.key'),
+    cert: fs.readFileSync('/etc/ssl/private/thruhiketracker.pem'),
+  }, app)
+  .listen(PORT, () => {
+    console.log(`Production Server is starting on port ${PORT}.`);
+  });
+}

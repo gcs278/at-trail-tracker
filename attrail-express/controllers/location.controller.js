@@ -13,8 +13,9 @@ const atGeojsonReduced = db.atGeojsonReduced;
 const hikeDetails = db.hikeDetails;
 const AT_MILES = 2189
 const maxDistanceOffTrail = 1609 // meters == 1 mile
-const GEOJSON_CALIBRATE = 1.0382266 // Calibration value to make geojson distanceNobo more accurate
-  
+const GEOJSON_DISTANCE_CALIBRATE = 1.0382266 // Calibration value to make geojson distanceNobo more accurate
+const GEOJSON_ALTITUDE_CALIBRATE = 1.125831410343423
+
 // const stateDate = new Date(2021, 03, 28) 
 // const startDate = "2021-03-28"
 const startDate = "2021-01-28"
@@ -142,7 +143,7 @@ async function getMyLastLocation() {
     var condition = { "properties.timestamp": { $exists: true }}
     const query = Location.find(condition).sort({"properties.timestamp": -1}).limit(1)
     const data = await query.exec()
-    console.log("Last Location: " + data[0])
+    // console.log("Last Location: " + data[0])
 
     return await obfuscateLocation(data[0])
 }
@@ -190,7 +191,7 @@ async function getClosestPointOnAT(coordinates) {
     const query2 = atGeojson.find({ "geometry": { $near: { $geometry: { type: "Point", coordinates: data[0].geometry.coordinates}, $maxDistance: maxDistanceOffTrail}}}).limit(1)
     const data2 = await query2.exec()
 
-    console.log("AT Closest Point: " + data2[0])
+    // console.log("AT Closest Point: " + data2[0])
     return data2[0]
 }
 
@@ -213,7 +214,7 @@ async function getPartialATGeoJson(coordinates) {
 
     var end = new Date().getTime();
     var time = end - start;
-    console.log('Execution time: ' + time);
+    console.log('Getting Partial AT Execution time: ' + time);
 
     return formatGeoJson(data)
 }
@@ -241,7 +242,7 @@ async function getIsOnTheAT() {
     const query = Location.find().sort({"properties.timestamp": -1}).limit(1)
     const data = await query.exec()
     isOnTheAt = data[0].triggerData.isOnAT
-    console.log("Is On The AT: " + isOnTheAt)
+    // console.log("Is On The AT: " + isOnTheAt)
     return isOnTheAt
 }
 
@@ -251,7 +252,7 @@ async function getMyLastLocationYesterday() {
 
     const query = atGeojson.find({ "properties.timestamp": {$gt: yesterday_start, $lt: yesterday_end}}).sort({"properties.timestamp": -1})
     const data = await query.exec()
-    console.log("Last Location Yesterday: " + data[0])
+    // console.log("Last Location Yesterday: " + data[0])
     return data[0]
 }
 
@@ -288,6 +289,7 @@ exports.stats = async (req, res) => {
     var lastLocationTime = null
     var startDate = null
     var started = false
+    var totalAltitude = null
 
     var hikeDetails = await getHikeDetails()
     startDate = hikeDetails.startDate;
@@ -299,11 +301,12 @@ exports.stats = async (req, res) => {
         if ( currentLocation ) {
             started = true
             currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
-            console.log("Closest point on the AT: " + currentATLocation)
+            // console.log("Closest point on the AT: " + currentATLocation)
             lastLocationTime = currentLocation.properties.timestamp
             isOnTheAT = await getIsOnTheAT()
             if ( currentATLocation ) {
-                totalDistance = currentATLocation.properties.distanceNobo * GEOJSON_CALIBRATE
+                totalDistance = currentATLocation.properties.distanceNobo * GEOJSON_DISTANCE_CALIBRATE
+                totalAltitude = currentATLocation.properties.totalAltitude * GEOJSON_ALTITUDE_CALIBRATE
                 dailyAverage = await getDailyAverage(totalDistance)
                 totalDistance = totalDistance.toFixed(2)
                 dailyAverage = dailyAverage.toFixed(2)
@@ -333,7 +336,7 @@ exports.stats = async (req, res) => {
                 todayDistance = 0
             }
 
-            console.log("Total Distance: " + totalDistance)
+            // console.log("Total Distance: " + totalDistance)
         }
     }
 
@@ -350,7 +353,8 @@ exports.stats = async (req, res) => {
         estimateCompletionDate: estimateCompletionDate,
         startDate: startDate,
         finishDate: finishDate,
-        started: started
+        started: started,
+        totalAltitude: totalAltitude
     });
 
 };
@@ -386,8 +390,10 @@ function uploadGeoJson(res, collection, file) {
             var points = []
             var previousPoint = null
             var previousDistanceNobo = null
+            var previousAltitude = null
             geojson = JSON.parse(data)
             var coordinates = null
+            var totalAltitude = 0
             if ( geojson.features[0].geometry.type == "MultiLineString") {
                 coordinates = geojson.features[0].geometry.coordinates[0]
             }
@@ -403,10 +409,14 @@ function uploadGeoJson(res, collection, file) {
                     var options = {units: 'miles'};
                 
                     var distanceFromLastPoint = distance(from, to, options);
+                    var altitudeChangeFromLastPoint = Math.abs(item[2] - previousAltitude)
                     distanceNobo = distanceFromLastPoint + previousDistanceNobo
+                    totalAltitude = altitudeChangeFromLastPoint + totalAltitude
                 }
                 console.log("Distance From Last Point: " + distanceFromLastPoint)
                 console.log("Distance Nobo: " + distanceNobo)
+                console.log("Altitude change from last point: " + altitudeChangeFromLastPoint)
+                console.log("Total Altitude: " + totalAltitude)
                 points.push({
                     geometry: {
                         type: "Point",
@@ -414,12 +424,14 @@ function uploadGeoJson(res, collection, file) {
                     },
                     properties: {
                         distanceNobo: distanceNobo,
+                        totalAltitude: totalAltitude,
                         altitude: item[2]
                     },
                     index: index
                 })
                 previousPoint = item
                 previousDistanceNobo = distanceNobo
+                previousAltitude = item[2];
                 index = index + 1
             });
             
@@ -550,7 +562,9 @@ exports.test = async (req, res) => {
             ]
         };
 
-        const postres = await axios.post('http://localhost:8080/api?token='+req.query.token, data);
+        const postres = await axios.post('http://localhost:8080/api', data, {
+            headers: req.headers
+        });
         // console.log(postres)
     });
     res.send("Created:<br>" + JSON.stringify(testCoordinates, null, 2));
