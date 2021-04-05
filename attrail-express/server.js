@@ -9,7 +9,8 @@ const app = express();
 
 var allowedOrigins = ["http://localhost:8081",
                       'http://thruhiketracker.com',
-                      'https://thruhiketracker.com'];
+                      'https://thruhiketracker.com',
+                      'http://lvh.me:8081'];
 
 const db = require("./models");
 db.mongoose

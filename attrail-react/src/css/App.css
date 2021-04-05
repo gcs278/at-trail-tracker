@@ -63,9 +63,9 @@
 
 .control-panel {
   background-color: rgb(245, 245, 245);
-  width: 25%;
+  width: 30%;
   flex: 0 0 25%;
-  max-width: 25%;
+  max-width: 30%;
   height: 100%;
   position: fixed;
   z-index: 1;
@@ -81,6 +81,9 @@
   .control-panel {
     bottom: 0px;
     top: unset;
+    flex: 0 0 25%;
+    position: fixed;
+    overflow-x: hidden;
     width: 100%;
     max-width: 100%;
     height: 50%;
@@ -169,3 +172,118 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.blogPanel {
+  position: fixed;
+  bottom:0;
+  right:0;
+  height: 100%;
+  width: 0%;
+  z-index: 10;
+  background-color: rgb(245, 245, 245);
+  -webkit-box-shadow: 3px 0px 5px 3px black;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+  -moz-box-shadow:    3px 0px 5px 5px black;  /* Firefox 3.5 - 3.6 */
+  box-shadow:         0px 0px 10px 0.01px rgb(43, 42, 42);
+  border-top: solid 1px rgb(110, 110, 110);
+  /* border-left: solid 1px rgb(110, 110, 110); */
+}
+
+.embed-responsive .card-img {
+  object-fit: cover;
+}
+
+.blog-card:first-of-type {
+  margin-left: 1.5rem !important;
+}
+
+.blog-card:last-of-type {
+  margin-right: 2.4rem !important;
+}
+
+.blog-card {
+  width: 100%;
+}
+.blog-card .card-body {
+  padding: .75rem;
+  padding-top: .6rem;
+}
+.blog-card .blog-title {
+  font-size: .85em;
+  margin-bottom: 3px;
+}
+.blog-card .blog-date {
+  font-size: .65em;
+  margin-bottom: 5px;
+  color:#6c757d;
+}
+.blog-card .card-text {
+  font-size: .8rem;
+}
+
+.card-img-top {
+  width: 100%;
+  height: 10vw;
+  object-fit: cover;
+}
+
+.blog-row .card-body {
+  height: 9vw;
+  text-overflow:ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  text-align: left;
+  -webkit-box-orient: vertical;
+  margin-bottom: 10px;
+}
+
+.card-row {
+  overflow-x:auto;
+}
+
+.section-title {
+  font-size: 1.15rem;
+}
+.right-arrow {
+  position: absolute;
+  right: 5px;
+  background: white;
+  padding: 8px;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  box-shadow:  0 0 5px  rgba(0,0,0,0.6);
+  -moz-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+  -webkit-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+  -o-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+}
+
+.left-arrow {
+  position: absolute;
+  left: 5px;
+  background: white;
+  padding: 8px;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%) translateX(50%);
+  box-shadow:  0 0 5px  rgba(0,0,0,0.6);
+  -moz-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+  -webkit-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+  -o-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
+}
+
+.blog-row {
+  position: relative;
+}
+.link-spanner{
+  position:absolute; 
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+  z-index: 1;
+
+  /* edit: fixes overlap error in IE7/8, 
+     make sure you have an empty gif 
+  background-image: url('empty.gif');*/
+}   

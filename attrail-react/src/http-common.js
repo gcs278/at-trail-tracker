@@ -17,6 +17,10 @@ export var auth = axios.create({
   // }
 });
 
+export var blog = axios.create({
+  baseURL: "https://blog.thruhiketracker.com"
+});
+
 function getUrl() {
   var foo = document.createElement("a");
   foo.href = window.location.origin.toString()

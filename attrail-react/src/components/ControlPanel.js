@@ -1,11 +1,13 @@
 import '../css/App.css';
 import React, { Component } from 'react';
 import LocationDataService from "../services/location.service";
+import BlogDataService from "../services/blog.service";
 import moment from 'moment'
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import Button from 'react-bootstrap/button';
 import Modal from 'react-bootstrap/modal';
-  
+import { ChevronRight, ChevronLeft } from 'react-bootstrap-icons';
+
 const nullChar = "?";
 
 class ControlPanel extends Component {
@@ -22,9 +24,22 @@ class ControlPanel extends Component {
         startDate: null,
         finishDate: null,
         totalAltitude: null
-      }
+      },
+      blogLeftArrowShow: false,
+      blogs: null
     }
     this.handleModalClose = this.handleModalClose.bind(this);
+    this.onBlogScroll = this.onBlogScroll.bind(this);
+  }
+
+  onBlogScroll(event) {
+    const scrollX = event.currentTarget.scrollLeft
+    if ( scrollX > 0 ) {
+      this.setState( {blogLeftArrowShow:true} );
+    }
+    else {
+      this.setState( {blogLeftArrowShow:false} );
+    }
   }
 
   getStats() {
@@ -49,8 +64,15 @@ class ControlPanel extends Component {
     }
   }
 
+  getBlogList() {
+    BlogDataService.getAll().then(response => {
+      console.log(response.data);
+      this.setState({blogs: response.data});
+    });
+  }
+
   componentDidMount() {
-    // this.getStats();
+    this.getBlogList();
   }
 
   logout() {
@@ -84,6 +106,11 @@ class ControlPanel extends Component {
             <div className="col-12 title">
               <h4>Grant's AT Thru Hike 2021</h4>
                 <hr></hr>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-12 ml-4">
+                <h5 className="section-title">Hike Stats</h5>
               </div>
             </div>
             { this.state.stats.finishDate ? "" : (
@@ -203,11 +230,51 @@ class ControlPanel extends Component {
               </div>
             </div>
             ) : "" }
+            <hr></hr>
             <div className="row">
-              <div className="col text-center logout">
-                {logoutButton !== null ? logoutButton : ""}
+              <div className="col-12 ml-4 mb-1">
+                <h5 className="section-title">Blog Posts</h5>
               </div>
             </div>
+            <div className="blog-row">
+              <div className="card-row" onScroll={this.onBlogScroll}>
+                <div className="card-group flex-nowrap no-gutters">
+                {
+                  this.state.blogs == null
+                    ? 'Loading blogs...'
+                    : this.state.blogs.map(blog => (
+                      <div className="col-6 mx-2 blog-card" key={blog.slug}>
+                        <a href={blog.link}>
+                          <span class="link-spanner"></span>
+                        </a>
+                        <div className="card">
+                          <img src={blog.jetpack_featured_media_url} className="card-img-top" alt="test"></img>
+                          <div className="card-body">
+                            <p class="blog-title"><strong>{blog.title.rendered}</strong></p>
+                            <p class="blog-date"><strong>{moment(blog.date).format('MMM DD, YYYY')}</strong></p>
+                            <p className="card-text">{blog.excerpt.rendered.replace(/<[^>]+>/g, '')}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                }
+                <div className="col-1"></div>
+              </div>
+              </div>
+              <div className="right-arrow">
+                <ChevronRight size={25} color="black"/>
+              </div>
+              { this.state.blogLeftArrowShow ? (
+              <div className="left-arrow">
+                <ChevronLeft size={25} color="black"/>
+              </div>
+              ) : "" }
+            </div>
+          <div className="row">
+            <div className="col text-center logout">
+              {logoutButton !== null ? logoutButton : ""}
+            </div>
+          </div>
         </div>
         <Modal show={this.state.showModal} onHide={this.handleModalClose} size="md" className="login-panel" centered>
         <Modal.Header closeButton>
