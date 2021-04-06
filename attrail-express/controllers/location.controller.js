@@ -143,8 +143,11 @@ async function getDailyAverage(totalDistance) {
     return totalDistance / daysHiking
 }
 
-async function getMyLastLocation() {
+async function getMyLastLocation( isOnAT = false ) {
     var condition = { "properties.timestamp": { $exists: true }}
+    if ( isOnAT ) {
+        condition = { "properties.timestamp": { $exists: true }, "triggerData.isOnAT": { $eq: true }}
+    }
     const query = Location.find(condition).sort({"properties.timestamp": -1}).limit(1)
     const data = await query.exec()
     // console.log("Last Location: " + data[0])
@@ -209,10 +212,10 @@ async function getClosestPointOnAT(coordinates) {
     }
 
     // Now Query for nearest AT Point
-    const query2 = atGeojson.find({ "geometry": { $near: { $geometry: { type: "Point", coordinates: search_coordinates}, $maxDistance: maxDistanceOffTrail}}}).limit(1)
+    const query2 = atGeojson.find({ "geometry": { $near: { $geometry: { type: "Point", coordinates: search_coordinates}}}}).limit(1)
     const data2 = await query2.exec()
 
-    // console.log("AT Closest Point: " + data2[0])
+    // console.log("AT Closest Point: " + data2)
     return data2[0]
 }
 
@@ -278,7 +281,7 @@ async function getMyLastLocationYesterday() {
     // If that fails, then try to get the earliest location today
     if ( ! data[0] ) {
         today_start = moment().utcOffset('-0400').startOf('day').toDate().toUTCString()
-        const query2 = Location.find({ "properties.timestamp": {$gt: today_start}}).sort({"properties.timestamp": 1})
+        const query2 = Location.find({ "properties.timestamp": {$gt: today_start}, triggerData: { isOnAT: true }}).sort({"properties.timestamp": 1})
         const data2 = await query2.exec()
         // console.log("Earliest Location Today: " + data2[0].properties.timestamp)
         // console.log(data2[0])
@@ -290,12 +293,7 @@ async function getMyLastLocationYesterday() {
 }
 
 exports.getMyTrack = async (req, res) => {
-    var currentLocation = await getMyLastLocation()
-    if ( ! currentLocation ) {
-        res.send({})
-        return
-    }
-    currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
+    currentATLocation = await getClosestPointOnAT()
     if ( currentATLocation ) {
         var geojson = await getPartialATGeoJson(currentATLocation.geometry.coordinates)
         // console.log("AT GEOJSON: " + JSON.stringify(geojson))
@@ -333,7 +331,7 @@ exports.stats = async (req, res) => {
         var currentLocation = await getMyLastLocation()
         if ( currentLocation ) {
             started = true
-            currentATLocation = await getClosestPointOnAT(currentLocation.geometry.coordinates)
+            currentATLocation = await getClosestPointOnAT()
             // console.log("Closest point on the AT: " + currentATLocation)
             lastLocationTime = currentLocation.properties.timestamp
             isOnTheAT = await getIsOnTheAT()

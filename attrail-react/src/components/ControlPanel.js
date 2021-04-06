@@ -28,8 +28,12 @@ class ControlPanel extends Component {
       blogLeftArrowShow: false,
       blogs: null
     }
+
+    this.blogRef = React.createRef()  
     this.handleModalClose = this.handleModalClose.bind(this);
     this.onBlogScroll = this.onBlogScroll.bind(this);
+    this.leftBlogScroll = this.leftBlogScroll.bind(this);
+    this.rightBlogScroll = this.rightBlogScroll.bind(this);
   }
 
   onBlogScroll(event) {
@@ -40,6 +44,14 @@ class ControlPanel extends Component {
     else {
       this.setState( {blogLeftArrowShow:false} );
     }
+  }
+
+  rightBlogScroll(event) {
+    this.blogRef.current.scrollBy({top: 0, left: 200, behavior: 'smooth' })
+  }
+
+  leftBlogScroll(event) {
+    this.blogRef.current.scrollBy({top: 0, left: -200, behavior: 'smooth' })
   }
 
   getStats() {
@@ -237,7 +249,7 @@ class ControlPanel extends Component {
               </div>
             </div>
             <div className="blog-row">
-              <div className="card-row" onScroll={this.onBlogScroll}>
+              <div className="card-row" onScroll={this.onBlogScroll} ref={this.blogRef}>
                 <div className="card-group flex-nowrap no-gutters">
                 {
                   this.state.blogs == null
@@ -245,13 +257,13 @@ class ControlPanel extends Component {
                     : this.state.blogs.map(blog => (
                       <div className="col-6 mx-2 blog-card" key={blog.slug}>
                         <a href={blog.link}>
-                          <span class="link-spanner"></span>
+                          <span className="link-spanner"></span>
                         </a>
                         <div className="card">
                           <img src={blog.jetpack_featured_media_url} className="card-img-top" alt="test"></img>
                           <div className="card-body">
-                            <p class="blog-title"><strong>{blog.title.rendered}</strong></p>
-                            <p class="blog-date"><strong>{moment(blog.date).format('MMM DD, YYYY')}</strong></p>
+                            <p className="blog-title"><strong>{blog.title.rendered}</strong></p>
+                            <p className="blog-date"><strong>{moment(blog.date).format('MMM DD, YYYY')}</strong></p>
                             <p className="card-text">{blog.excerpt.rendered.replace(/<[^>]+>/g, '')}</p>
                           </div>
                         </div>
@@ -261,20 +273,20 @@ class ControlPanel extends Component {
                 <div className="col-1"></div>
               </div>
               </div>
-              <div className="right-arrow">
+              <div className="right-arrow" onClick={this.rightBlogScroll}>
                 <ChevronRight size={25} color="black"/>
               </div>
               { this.state.blogLeftArrowShow ? (
-              <div className="left-arrow">
+              <div className="left-arrow" onClick={this.leftBlogScroll}>
                 <ChevronLeft size={25} color="black"/>
               </div>
               ) : "" }
             </div>
-          <div className="row">
+          {/* <div className="row">
             <div className="col text-center logout">
               {logoutButton !== null ? logoutButton : ""}
             </div>
-          </div>
+          </div> */}
         </div>
         <Modal show={this.state.showModal} onHide={this.handleModalClose} size="md" className="login-panel" centered>
         <Modal.Header closeButton>

@@ -77,6 +77,24 @@
   box-shadow:         0px 0px 10px 0.01px rgb(43, 42, 42);
   border-right: solid 1px rgb(110, 110, 110);
 }
+@media only screen and (max-width: 900px) and (min-width: 600px) {
+  .control-panel {
+    background-color: rgb(245, 245, 245);
+    width: 45%;
+    flex: 0 0 25%;
+    max-width: 45%;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top:0;
+    left:0;
+    overflow-x: hidden;
+    -webkit-box-shadow: 3px 0px 5px 3px black;  /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+    -moz-box-shadow:    3px 0px 5px 5px black;  /* Firefox 3.5 - 3.6 */
+    box-shadow:         0px 0px 10px 0.01px rgb(43, 42, 42);
+    border-right: solid 1px rgb(110, 110, 110);
+  }
+}
 @media only screen and (max-width: 600px) {
   .control-panel {
     bottom: 0px;
@@ -196,6 +214,10 @@
   margin-left: 1.5rem !important;
 }
 
+.blog-row .card-group {
+  display: flex;
+}
+
 .blog-card:last-of-type {
   margin-right: 2.4rem !important;
 }
@@ -222,12 +244,12 @@
 
 .card-img-top {
   width: 100%;
-  height: 10vw;
+  height: 150px;
   object-fit: cover;
 }
 
 .blog-row .card-body {
-  height: 9vw;
+  height: 150px;
   text-overflow:ellipsis;
   overflow: hidden;
   display: -webkit-box;
@@ -244,6 +266,7 @@
 .section-title {
   font-size: 1.15rem;
 }
+
 .right-arrow {
   position: absolute;
   right: 5px;
@@ -251,6 +274,8 @@
   padding: 8px;
   border-radius: 50%;
   top: 50%;
+  z-index: 100;
+  cursor: pointer;
   transform: translateY(-50%) translateX(-50%);
   box-shadow:  0 0 5px  rgba(0,0,0,0.6);
   -moz-box-shadow: 0 0 5px  rgba(0,0,0,0.6);
@@ -265,6 +290,8 @@
   padding: 8px;
   border-radius: 50%;
   top: 50%;
+  z-index: 100;
+  cursor: pointer;
   transform: translateY(-50%) translateX(50%);
   box-shadow:  0 0 5px  rgba(0,0,0,0.6);
   -moz-box-shadow: 0 0 5px  rgba(0,0,0,0.6);

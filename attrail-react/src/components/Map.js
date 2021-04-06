@@ -12,7 +12,6 @@ import turf from 'turf'
 import ControlPanel from './ControlPanel'
 import LoginPanel from './LoginPanel'
 import ClipLoader from "react-spinners/ClipLoader";
-import { css } from "@emotion/core";
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
@@ -31,7 +30,7 @@ const layerStyle = {
   type: 'line',
   paint: {
     'line-color': 'black',
-    'line-width': 3
+    'line-width': 3.5
   }
 };
 
@@ -40,7 +39,7 @@ const myTrackStyle = {
   type: 'line',
   paint: {
     'line-color': 'red',
-    'line-width': 1
+    'line-width': 3
   }
 };
 
@@ -58,35 +57,26 @@ var circleOptions = {
   steps: 80,
   units: 'miles'
 };
+var defaultViewPort = {
+  latitude: 40.5, // Down goes down
+  longitude: -81, // Up (postive) goes left
+  zoom: 4.5,
+}
 
 class Map extends Component {
   constructor(props) {
     super(props);
-    var viewport = {
-        latitude: 40.5,
-        longitude: -78,
-        zoom: 4.5,
-    }
-    var heightMap = "100vh";
-    if ( window.innerWidth < 767 ) {
-     viewport = {
-        latitude: 40,
-        longitude: -76,
-        zoom: 3.6,
-      }
-    heightMap = "50vh";
-  }
-    
+
     this.state = {
       marker: {
         latitude: 1,
         longitude: 1,
       },
-      heightMap: heightMap,
+      heightMap: "100vh",
       loadingTrack: true,
       loadingMyTrack: true,
       loadingLatestLocation: true,
-      viewport: viewport,
+      viewport: defaultViewPort,
       atGeojson: null,
       myTrack: null,
       stats: {
@@ -99,6 +89,7 @@ class Map extends Component {
     this.controlPanel = React.createRef();
     this.getLatestLocation = this.getLatestLocation.bind(this);
     this.getTrailData = this.getTrailData.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   getLatestLocation() {
@@ -162,10 +153,33 @@ class Map extends Component {
     }
   }
 
+  handleResize() {
+    var heightMap, viewport;
+    if ( window.innerWidth < 767 ) {
+      viewport = {
+          latitude: 40,
+          longitude: -76,
+          zoom: 3.6,
+        }
+      heightMap = window.innerHeight / 2;
+    } 
+    else {
+      var heightMap = "100vh";
+      viewport = defaultViewPort;
+    }
+    this.setState({
+      heightMap: heightMap,
+      viewport: viewport,
+    });
+  }
+
   componentDidMount() {
     document.title = "Thru Hike Tracker"
     this.getTrailOverlay();
     this.getTrailData();
+
+    window.addEventListener('resize', this.handleResize)
+    this.handleResize();
   }
 
   render() {
