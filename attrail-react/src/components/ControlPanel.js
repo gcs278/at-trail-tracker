@@ -235,7 +235,7 @@ class ControlPanel extends Component {
             <hr></hr>
             <div className="row">
               <div className="col-12 ml-4 mb-1">
-                <h5 className="section-title">Updates from Grant</h5>
+                <h5 className="section-title">Updates</h5>
               </div>
             </div>
             <div className="blog-row">
@@ -271,6 +271,20 @@ class ControlPanel extends Component {
                 <ChevronLeft size={25} color="black"/>
               </div>
               ) : "" }
+              <hr></hr>
+              <div className="row">
+                <div className="col-12 ml-4 mb-1">
+                  <h5 className="section-title">Get in Touch</h5>
+                </div>
+              </div>
+              <div className="row">
+                <div className="offset-2 col-3 text-right">
+                  Email:
+                </div>
+                <div className="col-3">
+                  <strong>gcs278@vt.edu</strong>
+                </div>
+              </div>
             </div>
           {/* <div className="row">
             <div className="col text-center logout">
@@ -315,7 +329,7 @@ export function Stat(props: ComponentProps): JSX.Element {
     return(
       <tr>
         <td className="text-right">{props.label}</td>
-        <td className="align-middle"><strong>{ stat !== null ? stat : nullChar } {stat !== null ? props.unit : ""}</strong></td>
+        <td className="align-middle"><strong>{ stat != null ? stat : nullChar } {stat != null ? props.unit : ""}</strong></td>
       </tr>
     );
   }
