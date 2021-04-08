@@ -25,7 +25,7 @@ module.exports = app => {
 
     router.get("/mytrack", VerifyToken, locations.getMyTrack);
 
-    router.post("/start-date", VerifyToken, locations.updateStartDate);
+    router.post("/hike-details", VerifyToken, locations.updateHikeDetails);
     router.post("/finish-date", VerifyToken, locations.updateFinishDate);
 
     app.use('/api/', VerifyToken, router);

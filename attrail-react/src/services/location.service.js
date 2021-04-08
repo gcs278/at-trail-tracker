@@ -21,8 +21,8 @@ class LocationDataService {
     return http().post("/", data);
   }
 
-  updateStartDate(data) {
-    return http().post("/start-date", data);
+  updateDetails(data) {
+    return http().post("/hike-details", data);
   }
 
   updateFinishDate(data) {

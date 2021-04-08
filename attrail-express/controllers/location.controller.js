@@ -325,6 +325,7 @@ exports.stats = async (req, res) => {
     var hikeDetails = await getHikeDetails()
     startDate = hikeDetails.startDate;
     finishDate = hikeDetails.finishDate;
+    trailName = hikeDetails.trailName;
 
     var allLocations = await getAllLocations()
     if ( allLocations ) {
@@ -385,7 +386,8 @@ exports.stats = async (req, res) => {
         startDate: startDate,
         finishDate: finishDate,
         started: started,
-        totalAltitude: totalAltitude
+        totalAltitude: totalAltitude,
+        trailName: trailName
     });
 
 };
@@ -518,7 +520,7 @@ exports.resetLocations = async (req, res) => {
     res.send("Reset Location Data");
 }
 
-exports.updateStartDate = async (req, res) => {
+exports.updateHikeDetails = async (req, res) => {
     if ( ! await isAdmin(req) ) {
         res.send(403).send("You must be an admin");
         return
@@ -528,7 +530,7 @@ exports.updateStartDate = async (req, res) => {
         res.send("ERROR: No data provided");
         return
     }
-    hikeDetails.findOneAndUpdate({},{startDate: req.body.startDate}, {useFindAndModify: false, upsert: true})
+    hikeDetails.findOneAndUpdate({},{startDate: req.body.startDate, trailName: req.body.trailName}, {useFindAndModify: false, upsert: true})
     .then(result => {
         console.log(result)
         res.send({result:"ok"});
@@ -558,8 +560,6 @@ exports.updateFinishDate = async (req, res) => {
         res.send("ERROR");
     })
 }
-
-
 
 // Find all published Tutorials
 exports.test = async (req, res) => {

@@ -8,6 +8,9 @@ module.exports = mongoose => {
           },
           "finishDate": {
             "type": "String"
+          },
+          "trailName": {
+            "type": "String"
           }
         }
       )

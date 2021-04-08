@@ -107,9 +107,12 @@ class Admin extends Component {
 
   handleDetailsSubmit(event) {
     event.preventDefault();
-    LocationDataService.updateStartDate({
-      startDate: this.state.startDate
-    })
+    var data = {
+      startDate: this.state.startDate,
+    }
+    if ( this.state.trailName !== "" )
+      data.trailName = this.state.trailName 
+    LocationDataService.updateDetails(data)
       .then(response => {
         this.setState({detailsResult: "Successfully updated hike details"});
       }
@@ -221,6 +224,12 @@ class Admin extends Component {
               <Form.Control
                 name="startDate"
                 value={this.state.startDate}
+                onChange={this.handleInputChange}
+              />
+              <Form.Label>Trail Name</Form.Label>
+              <Form.Control
+                name="trailName"
+                value={this.state.trailName}
                 onChange={this.handleInputChange}
               />
             </Form.Group>

@@ -113,13 +113,34 @@
 }
 
 .control-panel .stat {
-  font-weight: bold;
+  /* font-weight: bold; */
   display: block;
   text-align: right;
 }
+
+.control-panel .table.stats tbody th {
+  padding-top: .2rem;
+  padding-bottom: .2rem;
+}
+
+.control-panel .table.stats tbody td {
+  padding-top: .2rem;
+  padding-bottom: .2rem;
+}
+
+.control-panel .table.stats tbody tr td:first-child {
+  width: 54%;
+}
+
+.control-panel .table.stats > tbody > tr:first-child > td {
+    border: none;
+}
+
 .control-panel .value {
+  font-weight: bold;
   display: block;
   text-align: left;
+  vertical-align: bottom;
 }
 .control-panel .title h4 {
   text-align: center;
@@ -216,6 +237,10 @@
 
 .blog-row .card-group {
   display: flex;
+}
+
+.blog-row {
+  margin-bottom: 35px;
 }
 
 .blog-card:last-of-type {
