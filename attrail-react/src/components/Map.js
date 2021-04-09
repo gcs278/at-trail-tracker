@@ -31,7 +31,8 @@ const layerStyle = {
   paint: {
     'line-color': 'black',
     'line-width': 3.5
-  }
+  },
+  pickable: true
 };
 
 const myTrackStyle = {
@@ -92,6 +93,7 @@ class Map extends Component {
     this.getLatestLocation = this.getLatestLocation.bind(this);
     this.getTrailData = this.getTrailData.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.clickTrail = this.clickTrail.bind(this);
   }
 
   getLatestLocation() {
@@ -190,6 +192,10 @@ class Map extends Component {
     this.handleResize();
   }
 
+  clickTrail() {
+    console.log("HEREDFS")
+  }
+
   render() {
     return (
       <>
@@ -252,7 +258,7 @@ class Map extends Component {
                 <Pin size={40} />
             </Marker>
             <Source id="atTrail" type="geojson" data={this.state.atGeojson}>
-              <Layer {...layerStyle} />
+              <Layer onClick={this.clickTrail} onHover={this.clickTrail} {...layerStyle} />
             </Source>
             <Source id="mytrack" type="geojson" data={this.state.myTrack}>
               <Layer {...myTrackStyle} />

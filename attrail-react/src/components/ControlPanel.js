@@ -7,7 +7,14 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import Button from 'react-bootstrap/button';
 import Modal from 'react-bootstrap/modal';
 import { ChevronRight, ChevronLeft, CheckCircleFill, SignpostSplit, ClockFill } from 'react-bootstrap-icons';
-import { Terrain } from '@material-ui/icons';
+import Timeline from '@material-ui/lab/Timeline';
+import TimelineItem from '@material-ui/lab/TimelineItem';
+import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
+import TimelineConnector from '@material-ui/lab/TimelineConnector';
+import TimelineContent from '@material-ui/lab/TimelineContent';
+import TimelineDot from '@material-ui/lab/TimelineDot';
+import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
+import Typography from '@material-ui/core/Typography';
 
 const nullChar = "?";
 
@@ -124,6 +131,10 @@ class ControlPanel extends Component {
     if ( localStorage.getItem('token') ) {
       logoutButton = <Button variant="primary" onClick={this.logout}>Logout</Button>
     }
+    var stateEstimates = []
+    if ( this.state.stats.stateEstimates ){ 
+      stateEstimates = this.state.stats.stateEstimates 
+    }
     return (
       <>
         <div className="control-panel">
@@ -154,6 +165,7 @@ class ControlPanel extends Component {
                   <tbody>
                     <Stat label="Trail Name" stat={this.state.stats.trailName} finished={this.state.finished}></Stat>
                     <Stat label="Is On The AT" stat={this.state.stats.isOnTheAT} finished={this.state.finished} showIfFinished={false}></Stat>
+                    <Stat label="Current State" stat={this.state.stats.currentState} finished={this.state.finished} showIfFinished={false}></Stat>
                     <Stat label="Miles Hiked" unit="mi" round={0} stat={this.state.stats.totalDistance} finished={this.state.finished}></Stat>
                     <Stat label="Miles Left" unit="mi" round={0} stat={this.state.milesLeft} finished={this.state.finished}></Stat>
                     <Stat label="Miles Hiked Today" unit="mi" round={1} stat={this.state.stats.todayDistance} finished={this.state.finished} showIfFinished={false}></Stat>
@@ -164,7 +176,7 @@ class ControlPanel extends Component {
                     <Stat label="Start Date" stat={this.state.stats.startDate} finished={this.state.finished}></Stat>
                     <Stat label="Estimated Completion" stat={this.state.stats.estimateCompletionDate} finished={this.state.finished} showIfFinished={false}></Stat>
                     <Stat label="Finish Date" stat={this.state.stats.finishDate} finished={this.state.finished} showIfNotFinished={false}></Stat>
-                    <Stat label="Percent Completion" unit="%" stat={this.state.stats.percentDone} finished={this.state.finished} showIfNotFinished={false}></Stat>
+                    <Stat label="Percent Completion" unit="%" stat={this.state.stats.percentDone} finished={this.state.finished} showIfFinished={false}></Stat>
                     
                     {/*</tbody>{ this.state.stats.finishDate ? "" : (
                     )}
@@ -232,6 +244,47 @@ class ControlPanel extends Component {
               </div>
             </div>
             ) : "" }
+            { this.state.finished || ! this.state.stats.started? "" : (<hr></hr>)}
+            { this.state.finished || ! this.state.stats.started? "" : (
+            <div className="row">
+              <div className="col-12 ml-4 mb-1">
+                <h5 className="section-title">Predicted Timeline</h5>
+              </div>
+            </div>
+            )}
+            <Timeline align="">
+              {
+                stateEstimates.map(( value ) => {
+                  return (
+                    <TimelineItem>
+                      <TimelineOppositeContent>
+                        <Typography color="textSecondary">{value.state}</Typography>
+                      </TimelineOppositeContent>
+                      <TimelineSeparator>
+                        <TimelineDot variant="outlined"/>
+                        <TimelineConnector />
+                      </TimelineSeparator>
+                      <TimelineContent>
+                        <Typography>{this.formatDate(value.esimatedArrival)}</Typography>
+                      </TimelineContent>
+                    </TimelineItem>
+                  )
+                })
+              }
+              { this.state.finished || ! this.state.stats.started ? "" : (
+              <TimelineItem>
+                <TimelineOppositeContent>
+                  <Typography color="textSecondary">Katahdin (Finish)</Typography>
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot variant="outlined"/>
+                </TimelineSeparator>
+                <TimelineContent>
+                  <Typography>{this.state.stats.estimateCompletionDate}</Typography>
+                </TimelineContent>
+              </TimelineItem>
+            )}
+            </Timeline>
             <hr></hr>
             <div className="row">
               <div className="col-12 ml-4 mb-1">

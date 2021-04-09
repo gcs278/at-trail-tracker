@@ -321,6 +321,8 @@ exports.stats = async (req, res) => {
     var startDate = null
     var started = false
     var totalAltitude = null
+    var currentState = null
+    var stateEstimates = null
 
     var hikeDetails = await getHikeDetails()
     startDate = hikeDetails.startDate;
@@ -356,6 +358,48 @@ exports.stats = async (req, res) => {
                 estimatedDaysRemaining = ( AT_MILES - totalDistance ) / dailyAverage
                 estimatedDaysRemaining = estimatedDaysRemaining.toFixed(2)
                 estimateCompletionDate = moment().add(estimatedDaysRemaining, 'days');
+
+                states = [
+                    { state: "Georgia", milesInState: 78},
+                    { state: "Tennessee/North Carolina", milesInState: 374},
+                    { state: "Virginia", milesInState: 549},
+                    { state: "Maryland", milesInState: 43},
+                    { state: "Pennsylvania", milesInState: 234},
+                    { state: "New Jersey", milesInState: 76},
+                    { state: "New York", milesInState: 90},
+                    { state: "Connecticut", milesInState: 55},
+                    { state: "Massachusetts", milesInState: 93},
+                    { state: "Vermont", milesInState: 149},
+                    { state: "New Hampshire", milesInState: 164},
+                    { state: "Maine", milesInState: 284}
+                ]
+                stateEstimates = []
+                var stateMileageEnd = 0
+                var stateMileageBegin = 0
+                states.forEach(function(state, index) {
+                    miles_in_state = state.milesInState;
+                    stateMileageEnd = stateMileageEnd + miles_in_state
+                    console.log("State: " + state.state)
+                    console.log("State Mileage index: " + stateMileageEnd)
+                    console.log("Previous Mileage Index: " + stateMileageBegin)
+                    console.log("Total Distance: " + totalDistance)
+
+                    // See if we are in a state
+                    if ( totalDistance > stateMileageBegin && totalDistance <= stateMileageEnd ) {
+                        // We are in that state
+                        currentState = state.state
+                    } else if ( totalDistance <= stateMileageEnd ){
+                        // We haven't reached this state yet, calculate estimated stats
+                        var milesToState = stateMileageBegin - totalDistance
+                        var daysToState = milesToState / dailyAverage
+                        stateEstimates.push({
+                            state: state.state,
+                            milesToState: milesToState,
+                            esimatedArrival: moment().add(daysToState, 'days')
+                        })
+                    }
+                    stateMileageBegin = stateMileageEnd
+                });
             }
 
             daysHiking = await getDaysHiking()
@@ -387,7 +431,9 @@ exports.stats = async (req, res) => {
         finishDate: finishDate,
         started: started,
         totalAltitude: totalAltitude,
-        trailName: trailName
+        trailName: trailName,
+        currentState: currentState,
+        stateEstimates: stateEstimates
     });
 
 };
