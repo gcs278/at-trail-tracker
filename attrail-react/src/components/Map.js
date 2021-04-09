@@ -67,6 +67,8 @@ class Map extends Component {
   constructor(props) {
     super(props);
 
+    var viewport = this.handleResize();
+
     this.state = {
       marker: {
         latitude: 1,
@@ -76,7 +78,7 @@ class Map extends Component {
       loadingTrack: true,
       loadingMyTrack: true,
       loadingLatestLocation: true,
-      viewport: defaultViewPort,
+      viewport: viewport,
       atGeojson: null,
       myTrack: null,
       stats: {
@@ -113,6 +115,7 @@ class Map extends Component {
       })
       .catch(e => {
         console.log(e);
+        this.setState({loadingLatestLocation:false});
       });
   }
 
@@ -128,6 +131,7 @@ class Map extends Component {
       })
       .catch(e => {
         console.log(e);
+        this.setState({loadingMyTrack:false});
       });
   }
 
@@ -155,6 +159,7 @@ class Map extends Component {
 
   handleResize() {
     var heightMap, viewport;
+    console.log("handling resize: " + window.innerWidth);
     if ( window.innerWidth < 767 ) {
       viewport = {
           latitude: 40,
@@ -167,10 +172,13 @@ class Map extends Component {
       var heightMap = "100vh";
       viewport = defaultViewPort;
     }
+    console.log(viewport)
     this.setState({
       heightMap: heightMap,
       viewport: viewport,
     });
+
+    return viewport;
   }
 
   componentDidMount() {

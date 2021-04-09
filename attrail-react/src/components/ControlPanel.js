@@ -313,9 +313,9 @@ function isNumeric(str) {
 
 export function Stat(props: ComponentProps): JSX.Element {
   if ( ( props.finished && props.showIfFinished) || ( ! props.finished && props.showIfNotFinished) ){
-    console.log("stat: " + props.stat)
-    console.log("type: " + typeof props.stat)
-    console.log("isnumber: " + isNumeric(props.stat))
+    // console.log("stat: " + props.stat)
+    // console.log("type: " + typeof props.stat)
+    // console.log("isnumber: " + isNumeric(props.stat))
     var stat = props.stat
 
     if ( typeof props.stat  === "boolean" )
