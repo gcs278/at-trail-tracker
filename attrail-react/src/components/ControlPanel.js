@@ -326,16 +326,8 @@ class ControlPanel extends Component {
               ) : "" }
               <hr></hr>
               <div className="row">
-                <div className="col-12 ml-4 mb-1">
-                  <h5 className="section-title">Get in Touch</h5>
-                </div>
-              </div>
-              <div className="row">
-                <div className="offset-2 col-3 text-right">
-                  Email:
-                </div>
-                <div className="col-3">
-                  <strong>gcs278@vt.edu</strong>
+                <div className="col-12">
+                  <h5 className="text-center"><a href="https://blog.thruhiketracker.com/contact">Get in Touch</a></h5>
                 </div>
               </div>
             </div>

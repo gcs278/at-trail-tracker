@@ -76,11 +76,12 @@ class LoginPanel extends Component {
         <Modal.Body>
           <Form onSubmit={this.handleSubmit}>
             <Form.Group size="lg" controlId="password">
-              <Form.Label>Enter the secret passphrase to gain access:</Form.Label>
+              <Form.Label>Enter the secret password to gain access:</Form.Label>
               <Form.Control
                 type="password"
                 onChange={(e) => this.setPassword(e.target.value)}
               />
+              <Form.Label className="text-muted font-italic">Don't have the secret password? <a href="https://blog.thruhiketracker.com/access">Request it here.</a></Form.Label>
             </Form.Group>
             <h5 className="login-error">{this.state.result}</h5>
             <div class="text-right">

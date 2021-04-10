@@ -325,9 +325,11 @@ exports.stats = async (req, res) => {
     var stateEstimates = null
 
     var hikeDetails = await getHikeDetails()
-    startDate = hikeDetails.startDate;
-    finishDate = hikeDetails.finishDate;
-    trailName = hikeDetails.trailName;
+    if ( hikeDetails ) {
+        startDate = hikeDetails.startDate;
+        finishDate = hikeDetails.finishDate;
+        trailName = hikeDetails.trailName;
+    }
 
     var allLocations = await getAllLocations()
     if ( allLocations ) {
@@ -357,6 +359,7 @@ exports.stats = async (req, res) => {
 
                 estimatedDaysRemaining = ( AT_MILES - totalDistance ) / dailyAverage
                 estimatedDaysRemaining = estimatedDaysRemaining.toFixed(2)
+                estimatedDaysRemaining = isFinite(estimatedDaysRemaining) ? estimatedDaysRemaining : 0.0;
                 estimateCompletionDate = moment().add(estimatedDaysRemaining, 'days');
 
                 states = [
@@ -392,6 +395,7 @@ exports.stats = async (req, res) => {
                         // We haven't reached this state yet, calculate estimated stats
                         var milesToState = stateMileageBegin - totalDistance
                         var daysToState = milesToState / dailyAverage
+                        daysToState = isFinite(daysToState) ? daysToState : 0;
                         stateEstimates.push({
                             state: state.state,
                             milesToState: milesToState,
