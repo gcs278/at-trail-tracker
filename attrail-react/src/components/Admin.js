@@ -1,7 +1,6 @@
 import '../css/App.css';
 import React, { Component } from 'react';
-import Button from 'react-bootstrap/button';
-import Form from "react-bootstrap/Form";
+import {Button, Form} from 'react-bootstrap';
 import LocationDataService from "../services/location.service";
 import moment from 'moment'
 import {Link} from "react-router-dom";

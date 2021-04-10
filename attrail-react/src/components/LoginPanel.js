@@ -1,8 +1,6 @@
 import '../css/App.css';
 import React, { Component } from 'react';
-import Modal from 'react-bootstrap/modal';
-import Button from 'react-bootstrap/button';
-import Form from "react-bootstrap/Form";
+import {Modal,Button, Form} from 'react-bootstrap';
 import AuthDataService from "../services/auth.service";
 
 class LoginPanel extends Component {

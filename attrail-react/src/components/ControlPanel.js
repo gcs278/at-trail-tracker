@@ -3,9 +3,7 @@ import React, { Component } from 'react';
 import LocationDataService from "../services/location.service";
 import BlogDataService from "../services/blog.service";
 import moment from 'moment'
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import Button from 'react-bootstrap/button';
-import Modal from 'react-bootstrap/modal';
+import {ProgressBar,Button,Modal} from 'react-bootstrap';
 import { ChevronRight, ChevronLeft, CheckCircleFill, SignpostSplit, ClockFill } from 'react-bootstrap-icons';
 import Timeline from '@material-ui/lab/Timeline';
 import TimelineItem from '@material-ui/lab/TimelineItem';
